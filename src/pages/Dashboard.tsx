@@ -45,6 +45,11 @@ export default function Dashboard() {
       const webhookUrl = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL;
       if (!webhookUrl || !metrics || !companyName) return;
 
+      const today = new Date().toISOString().split('T')[0];
+      const lastSync = localStorage.getItem("lastSyncDate");
+      
+      if (lastSync === today) return;
+
       try {
         await fetch(webhookUrl, {
           method: "POST",
@@ -61,6 +66,7 @@ export default function Dashboard() {
             timestamp: new Date().toISOString(),
           }),
         });
+        localStorage.setItem("lastSyncDate", today);
       } catch (e) {
         // Silent fail
       }
