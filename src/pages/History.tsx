@@ -1,34 +1,46 @@
 import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, TransactionCategory } from "../lib/db";
+import { db, TransactionCategory, Transaction } from "../lib/db";
 import { formatCurrency } from "../lib/utils";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { Trash2, ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react";
+import { Trash2, ArrowUpRight, ArrowDownRight, Wallet, Download } from "lucide-react";
 import { Card } from "../components/ui/Card";
 import { cn } from "../lib/utils";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const FILTER_TABS: { id: "all" | TransactionCategory; label: string }[] = [
   { id: "all", label: "Semua" },
   { id: "kopra_purchase", label: "Pembelian" },
   { id: "kopra_sale", label: "Penjualan" },
   { id: "operational", label: "Operasional" },
+  { id: "bank_deposit", label: "Setor Bank" },
+  { id: "profit_sharing", label: "Bagi Hasil" },
   { id: "other", label: "Lainnya" },
   { id: "tambah_modal", label: "Modal" },
 ];
 
 export default function History() {
   const [activeFilter, setActiveFilter] = useState<"all" | TransactionCategory>("all");
+  const [filterDate, setFilterDate] = useState("");
 
   const transactions = useLiveQuery(
     () => {
       let collection = db.transactions.orderBy("date").reverse();
-      if (activeFilter !== "all") {
-        collection = collection.filter((tx) => tx.category === activeFilter);
+      
+      if (activeFilter !== "all" || filterDate) {
+        return collection.filter((tx) => {
+          let match = true;
+          if (activeFilter !== "all" && tx.category !== activeFilter) match = false;
+          if (filterDate && !tx.date.startsWith(filterDate)) match = false;
+          return match;
+        }).toArray();
       }
+      
       return collection.toArray();
     },
-    [activeFilter]
+    [activeFilter, filterDate]
   );
 
   const handleDelete = async (id?: number) => {
@@ -38,6 +50,43 @@ export default function History() {
     }
   };
 
+  const handleExportPDF = () => {
+    if (!transactions || transactions.length === 0) return;
+    
+    const doc = new jsPDF();
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("Laporan DanaTani", 14, 22);
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Kategori: ${FILTER_TABS.find(t => t.id === activeFilter)?.label}`, 14, 30);
+    if (filterDate) {
+      doc.text(`Tanggal Filter: ${format(new Date(filterDate), "dd MMMM yyyy", { locale: idLocale })}`, 14, 36);
+    }
+    doc.text(`Waktu Cetak: ${format(new Date(), "dd MMMM yyyy, HH:mm", { locale: idLocale })}`, 14, filterDate ? 42 : 36);
+
+    const tableData = transactions.map((tx) => [
+      format(new Date(tx.date), "dd/MM/yyyy HH:mm"),
+      tx.category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      tx.type === "income" || tx.type === "capital" ? formatCurrency(tx.amount) : "-",
+      tx.type === "expense" || tx.type === "allocation" ? formatCurrency(tx.amount) : "-",
+      tx.note || "-"
+    ]);
+
+    autoTable(doc, {
+      startY: filterDate ? 50 : 45,
+      head: [["Tanggal", "Kategori", "Pemasukan", "Pengeluaran", "Keterangan"]],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [90, 90, 64] }, // Match olive-700
+      styles: { fontSize: 9 },
+    });
+
+    doc.save(`Laporan_DanaTani_${format(new Date(), "dd-MM-yyyy")}.pdf`);
+  };
+
   return (
     <div className="flex flex-col p-4 md:p-8 md:pt-10 max-w-3xl mx-auto pb-10">
       <header className="mb-6 border-b border-warm-border pb-4 flex justify-between items-end">
@@ -45,24 +94,54 @@ export default function History() {
           <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-olive-700 opacity-70">Laporan</p>
           <h1 className="font-serif text-5xl font-light italic text-brown-900 leading-tight">Riwayat</h1>
         </div>
+        <button 
+          onClick={handleExportPDF}
+          className="flex items-center gap-2 px-4 py-2 bg-warm-surface border border-warm-border rounded-full hover:bg-olive-50 transition-colors text-brown-900"
+          title="Download PDF"
+        >
+          <Download className="w-4 h-4" />
+          <span className="text-[10px] uppercase tracking-widest font-bold hidden sm:inline">Export PDF</span>
+        </button>
       </header>
 
-      {/* Filter Tabs */}
-      <div className="flex overflow-x-auto hide-scrollbar mb-6 -mx-4 px-4 md:mx-0 md:px-0 space-x-2">
-        {FILTER_TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveFilter(tab.id)}
-            className={cn(
-              "px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.1em] font-medium transition-all whitespace-nowrap border",
-              activeFilter === tab.id
-                ? "bg-brown-900 text-warm-bg border-brown-900 shadow-sm"
-                : "bg-warm-surface border-warm-border text-brown-500 hover:text-brown-900 hover:bg-olive-50"
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Filters Container */}
+      <div className="flex flex-col space-y-4 mb-6">
+        {/* Date Filter */}
+        <div className="flex items-center space-x-3">
+          <label className="text-sm font-medium text-brown-900">Tanggal:</label>
+          <input 
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="rounded-full border border-warm-border bg-warm-surface px-4 py-2 text-sm text-brown-900 focus:outline-none focus:ring-1 focus:ring-brown-900"
+          />
+          {filterDate && (
+            <button 
+              onClick={() => setFilterDate("")} 
+              className="text-xs text-terracotta-600 hover:text-terracotta-700 font-medium"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 space-x-2 pb-2">
+          {FILTER_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveFilter(tab.id)}
+              className={cn(
+                "px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.1em] font-medium transition-all whitespace-nowrap border",
+                activeFilter === tab.id
+                  ? "bg-brown-900 text-warm-bg border-brown-900 shadow-sm"
+                  : "bg-warm-surface border-warm-border text-brown-500 hover:text-brown-900 hover:bg-olive-50"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Card className="p-0 overflow-hidden bg-transparent border-none md:bg-warm-surface md:border md:border-warm-border">

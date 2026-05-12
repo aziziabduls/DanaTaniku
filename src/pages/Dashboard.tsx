@@ -32,7 +32,7 @@ export default function Dashboard() {
             {formatCurrency(metrics?.balance || 0)}
           </h2>
           
-          <div className="flex items-center space-x-6 text-sm">
+          <div className="flex flex-wrap items-center gap-6 text-sm">
             <div>
               <p className="text-[10px] uppercase tracking-[0.15em] opacity-80 mb-1">Modal Awal</p>
               <p className="font-medium text-warm-surface">{formatCurrency(metrics?.totalCapital || 0)}</p>
@@ -48,6 +48,14 @@ export default function Dashboard() {
                 </span>
               </p>
             </div>
+            {metrics && metrics.appFee > 0 && (
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] opacity-80 mb-1">Biaya App ({(metrics.appFeeRate).toFixed(2)}%)</p>
+                <p className="font-medium text-terracotta-100 flex items-center">
+                  - {formatCurrency(metrics.appFee)}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </Card>

@@ -10,6 +10,8 @@ const TABS: { id: TransactionCategory; label: string; type: TransactionType }[] 
   { id: "kopra_sale", label: "Penjualan", type: "income" },
   { id: "kopra_purchase", label: "Pembelian", type: "expense" },
   { id: "operational", label: "Operasional", type: "expense" },
+  { id: "bank_deposit", label: "Setor Bank", type: "allocation" },
+  { id: "profit_sharing", label: "Bagi Hasil", type: "allocation" },
   { id: "other", label: "Lainnya", type: "expense" },
   { id: "tambah_modal", label: "Modal", type: "capital" },
 ];
@@ -22,6 +24,7 @@ export default function AddTransaction() {
   const [quantityStr, setQuantityStr] = useState("");
   const [priceStr, setPriceStr] = useState("");
   const [note, setNote] = useState("");
+  const [dateStr, setDateStr] = useState(() => new Date().toISOString().split('T')[0]);
 
   const selectedTab = TABS.find((t) => t.id === activeTab)!;
 
@@ -55,7 +58,7 @@ export default function AddTransaction() {
         amount,
         quantity: isKopra ? parseNumberInput(quantityStr) : undefined,
         pricePerUnit: isKopra ? parseNumberInput(priceStr) : undefined,
-        date: new Date().toISOString(),
+        date: new Date(dateStr + "T00:00:00").toISOString(),
         note: note || "",
       });
       // reset form
@@ -146,6 +149,16 @@ export default function AddTransaction() {
                 className="font-mono text-xl pl-12 h-14"
               />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-brown-900 px-1">Tanggal</label>
+            <Input
+              type="date"
+              required
+              value={dateStr}
+              onChange={(e) => setDateStr(e.target.value)}
+            />
           </div>
 
           <div className="space-y-1.5">

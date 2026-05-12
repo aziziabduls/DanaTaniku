@@ -1,13 +1,15 @@
 import Dexie, { type EntityTable } from 'dexie';
 
-export type TransactionType = 'capital' | 'income' | 'expense';
+export type TransactionType = 'capital' | 'income' | 'expense' | 'allocation';
 export type TransactionCategory = 
   | 'modal_awal' 
   | 'tambah_modal' 
   | 'kopra_purchase' 
   | 'kopra_sale' 
   | 'operational' 
-  | 'other';
+  | 'other'
+  | 'bank_deposit'
+  | 'profit_sharing';
 
 export interface Transaction {
   id?: number;
