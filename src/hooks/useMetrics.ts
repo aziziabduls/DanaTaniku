@@ -37,6 +37,8 @@ export function useMetrics() {
 
   let appFee = 0;
   if (profitLoss > 0) {
+    appFee = totalIncome * (appFeeRate / 100);
+  } else {
     appFee = profitLoss * (appFeeRate / 100);
   }
 
