@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
@@ -19,7 +19,7 @@ const TABS: { id: TransactionCategory; label: string; type: TransactionType }[] 
 export default function AddTransaction() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TransactionCategory>("kopra_purchase");
-  
+
   const [amountStr, setAmountStr] = useState("");
   const [quantityStr, setQuantityStr] = useState("");
   const [priceStr, setPriceStr] = useState("");
@@ -47,7 +47,7 @@ export default function AddTransaction() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const amount = parseNumberInput(amountStr);
     if (!amount || amount <= 0) return alert("Peringatan: Nominal tidak valid");
 
@@ -90,7 +90,7 @@ export default function AddTransaction() {
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "px-5 py-2.5 rounded-full text-[10px] uppercase tracking-[0.1em] font-medium transition-all whitespace-nowrap flex-1",
+              "px-5 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-medium transition-all whitespace-nowrap flex-1",
               activeTab === tab.id
                 ? "bg-brown-900 text-warm-bg shadow-sm"
                 : "text-brown-500 hover:text-brown-900 hover:bg-olive-50"

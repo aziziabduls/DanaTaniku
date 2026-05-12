@@ -1,16 +1,19 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { useCompany } from "../hooks/useCompany";
+import { useNavigate } from "react-router-dom";
 
 export default function Welcome() {
   const { saveCompany } = useCompany();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
       saveCompany(name.trim());
+      navigate("/");
     }
   };
 
@@ -19,19 +22,19 @@ export default function Welcome() {
       <div className="w-full max-w-md bg-warm-surface p-8 rounded-[32px] border border-warm-border shadow-sm">
         <h1 className="font-serif text-4xl font-light italic text-brown-900 mb-2">Selamat Datang</h1>
         <p className="text-brown-500 mb-8">Masukkan nama perusahaan atau usaha kopra Anda untuk memulai.</p>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-brown-900 px-1">Nama Perusahaan / Usaha</label>
-            <Input 
-              type="text" 
-              placeholder="Contoh: PT. Makmur Jaya" 
+            <Input
+              type="text"
+              placeholder="Contoh: PT. Makmur Jaya"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
-          <Button type="submit" className="w-full">Mulai Aplikasi</Button>
+          <Button type="submit" className="w-full" disabled={!name.trim()}>Mulai Aplikasi</Button>
         </form>
       </div>
     </div>
