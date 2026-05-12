@@ -9,6 +9,8 @@ import { Card } from "../components/ui/Card";
 import { cn } from "../lib/utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useCompany } from "../hooks/useCompany";
+import { useMetrics } from "../hooks/useMetrics";
 
 const FILTER_TABS: { id: "all" | TransactionCategory; label: string }[] = [
   { id: "all", label: "Semua" },
@@ -24,6 +26,8 @@ const FILTER_TABS: { id: "all" | TransactionCategory; label: string }[] = [
 export default function History() {
   const [activeFilter, setActiveFilter] = useState<"all" | TransactionCategory>("all");
   const [filterDate, setFilterDate] = useState("");
+  const { companyName } = useCompany();
+  const metrics = useMetrics();
 
   const transactions = useLiveQuery(
     () => {
@@ -57,7 +61,7 @@ export default function History() {
     
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
-    doc.text("Laporan DanaTani", 14, 22);
+    doc.text(`Laporan ${companyName || 'DanaTani'}`, 14, 22);
     
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
@@ -66,6 +70,15 @@ export default function History() {
       doc.text(`Tanggal Filter: ${format(new Date(filterDate), "dd MMMM yyyy", { locale: idLocale })}`, 14, 36);
     }
     doc.text(`Waktu Cetak: ${format(new Date(), "dd MMMM yyyy, HH:mm", { locale: idLocale })}`, 14, filterDate ? 42 : 36);
+
+    let currentY = filterDate ? 50 : 44;
+
+    if (metrics) {
+      doc.setFontSize(10);
+      doc.text(`Total Laba / Rugi: ${formatCurrency(metrics.profitLoss)}`, 14, currentY);
+      doc.text(`Biaya Aplikasi: ${formatCurrency(metrics.appFee)}`, 14, currentY + 6);
+      currentY += 14;
+    }
 
     const tableData = transactions.map((tx) => [
       format(new Date(tx.date), "dd/MM/yyyy HH:mm"),
@@ -76,7 +89,7 @@ export default function History() {
     ]);
 
     autoTable(doc, {
-      startY: filterDate ? 50 : 45,
+      startY: currentY,
       head: [["Tanggal", "Kategori", "Pemasukan", "Pengeluaran", "Keterangan"]],
       body: tableData,
       theme: 'grid',
@@ -84,7 +97,7 @@ export default function History() {
       styles: { fontSize: 9 },
     });
 
-    doc.save(`Laporan_DanaTani_${format(new Date(), "dd-MM-yyyy")}.pdf`);
+    doc.save(`Laporan_${companyName ? companyName.replace(/\s+/g,'_') : 'DanaTani'}_${format(new Date(), "dd-MM-yyyy")}.pdf`);
   };
 
   return (

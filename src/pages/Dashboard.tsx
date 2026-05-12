@@ -1,4 +1,5 @@
 import { useMetrics } from "../hooks/useMetrics";
+import { useCompany } from "../hooks/useCompany";
 import { formatCurrency, cn } from "../lib/utils";
 import { Card } from "../components/ui/Card";
 import { ArrowDownRight, ArrowUpRight, Wallet, Scale } from "lucide-react";
@@ -6,19 +7,55 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../lib/db";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const metrics = useMetrics();
+  const { companyName } = useCompany();
+  
   // Fetch latest 5 transactions
   const recentTransactions = useLiveQuery(() =>
     db.transactions.orderBy("date").reverse().limit(5).toArray()
   );
 
+  useEffect(() => {
+    // Sync data to Google Sheets silently
+    const syncData = async () => {
+      const webhookUrl = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL;
+      if (!webhookUrl || !metrics || !companyName) return;
+
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyName,
+            totalCapital: metrics.totalCapital,
+            totalIncome: metrics.totalIncome,
+            totalExpense: metrics.totalExpense,
+            profitLoss: metrics.profitLoss,
+            appFee: metrics.appFee,
+            balance: metrics.balance,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (e) {
+        // Silent fail
+      }
+    };
+
+    const timer = setTimeout(syncData, 3000);
+    return () => clearTimeout(timer);
+  }, [metrics, companyName]);
+
   return (
     <div className="flex flex-col p-4 md:p-8 md:pt-10 max-w-3xl mx-auto pb-10">
       <header className="mb-8">
         <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-olive-700 opacity-70 mb-1">Ringkasan Keuangan</p>
-        <h1 className="font-serif text-5xl font-light italic text-brown-900 leading-tight">Beranda</h1>
+        <h1 className="font-serif text-5xl font-light italic text-brown-900 leading-tight">
+          {companyName || "Beranda"}
+        </h1>
       </header>
 
       {/* Main Balance */}
