@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, TransactionCategory, Transaction } from "../lib/db";
 import { formatCurrency } from "../lib/utils";
@@ -29,6 +29,11 @@ export default function History() {
   const { companyName } = useCompany();
   const metrics = useMetrics();
 
+  // set default date to today
+  useEffect(() => {
+    setFilterDate(format(new Date(), "yyyy-MM-dd"));
+  }, []);
+
   const transactions = useLiveQuery(
     () => {
       let collection = db.transactions.orderBy("date").reverse();
@@ -37,7 +42,7 @@ export default function History() {
         return collection.filter((tx) => {
           let match = true;
           if (activeFilter !== "all" && tx.category !== activeFilter) match = false;
-          if (filterDate && !tx.date.startsWith(filterDate)) match = false;
+          if (filterDate && format(new Date(tx.date), "yyyy-MM-dd") !== filterDate) match = false;
           return match;
         }).toArray();
       }
