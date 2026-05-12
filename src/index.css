@@ -1,37 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-warm-bg: #f5f5f0;
-  --color-warm-surface: #ffffff;
-  --color-warm-border: #e5e5da;
+  --color-warm-bg: #F5F4F0;
+  --color-warm-surface: #FFFFFF;
+  --color-warm-border: #E8E6DF;
   
-  --color-olive-50: #f9f9f4;
-  --color-olive-100: #e5e5da;
-  --color-olive-500: #5A5A40;
-  --color-olive-600: #5A5A40;
-  --color-olive-700: #5A5A40;
-  --color-olive-800: #3a3a2a;
+  --color-olive-50: #F1F4F2;
+  --color-olive-100: #E3E9E5;
+  --color-olive-500: #2B4C3B;
+  --color-olive-600: #1F382B;
+  --color-olive-700: #152B20;
+  --color-olive-800: #0D1D15;
   
-  --color-terracotta-50: #fdf6f5;
-  --color-terracotta-100: #fae8e5;
-  --color-terracotta-500: #A0522D;
-  --color-terracotta-600: #A0522D;
-  --color-terracotta-700: #A0522D;
+  --color-terracotta-50: #FFF5F3;
+  --color-terracotta-100: #FFE4DE;
+  --color-terracotta-500: #E05A47;
+  --color-terracotta-600: #C94836;
+  --color-terracotta-700: #A33525;
   
-  --color-brown-50: #f5f5f0;
-  --color-brown-100: #e5e5da;
-  --color-brown-300: #8b8b7a;
-  --color-brown-500: #8b8b7a;
-  --color-brown-900: #3a3a2a;
+  --color-brown-50: #F7F6F5;
+  --color-brown-100: #EFECE9;
+  --color-brown-300: #A8A09A;
+  --color-brown-500: #756D67;
+  --color-brown-900: #2C2825;
   
-  --font-serif: "Georgia", "Cormorant Garamond", ui-serif, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Courier New", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-serif: "Playfair Display", ui-serif, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 @layer base {
+  /* Aggressive fluid base font size: 14px on mobile, scaling up to 20px on desktop.
+     Since Tailwind uses rems for everything (text, margins, paddings), 
+     this makes the ENTIRE UI fluidly scale across all device sizes! */
+  html {
+    font-size: clamp(14px, 0.7rem + 0.8vw, 20px);
+  }
+  
+  /* Optimal reading rhythm */
   body {
-    @apply bg-warm-bg text-brown-900 font-sans antialiased;
+    line-height: 1.6;
+  }
+  
+  /* Constrain prose length to optimal reading measure (45-75 chars) */
+  p {
+    max-width: 65ch;
+  }
+  
+  /* Heading rhythm and wrapping */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    margin-bottom: 0.5em;
+  }
+  
+  h1 {
+    line-height: 1.1;
+  }
+  
+  h2, h3 {
+    line-height: 1.2;
+  }
+  
+  h4, h5, h6 {
+    line-height: 1.3;
   }
 }

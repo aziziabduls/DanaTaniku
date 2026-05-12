@@ -7,13 +7,14 @@ import { db, TransactionType, TransactionCategory } from "../lib/db";
 import { cn, parseNumberInput } from "../lib/utils";
 
 const TABS: { id: TransactionCategory; label: string; type: TransactionType }[] = [
-  { id: "kopra_sale", label: "Penjualan", type: "income" },
+  { id: "tambah_modal", label: "Modal", type: "capital" },
   { id: "kopra_purchase", label: "Pembelian", type: "expense" },
+  { id: "kopra_sale", label: "Penjualan", type: "income" },
   { id: "operational", label: "Operasional", type: "expense" },
   { id: "bank_deposit", label: "Setor Bank", type: "allocation" },
   { id: "profit_sharing", label: "Bagi Hasil", type: "allocation" },
   { id: "other", label: "Lainnya", type: "expense" },
-  { id: "tambah_modal", label: "Modal", type: "capital" },
+
 ];
 
 export default function AddTransaction() {

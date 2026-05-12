@@ -32,7 +32,7 @@ export default function History() {
   const transactions = useLiveQuery(
     () => {
       let collection = db.transactions.orderBy("date").reverse();
-      
+
       if (activeFilter !== "all" || filterDate) {
         return collection.filter((tx) => {
           let match = true;
@@ -41,7 +41,7 @@ export default function History() {
           return match;
         }).toArray();
       }
-      
+
       return collection.toArray();
     },
     [activeFilter, filterDate]
@@ -56,13 +56,13 @@ export default function History() {
 
   const handleExportPDF = () => {
     if (!transactions || transactions.length === 0) return;
-    
+
     const doc = new jsPDF();
-    
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.text(`Laporan ${companyName || 'DanaTani'}`, 14, 22);
-    
+
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.text(`Kategori: ${FILTER_TABS.find(t => t.id === activeFilter)?.label}`, 14, 30);
@@ -97,7 +97,7 @@ export default function History() {
       styles: { fontSize: 9 },
     });
 
-    doc.save(`Laporan_${companyName ? companyName.replace(/\s+/g,'_') : 'DanaTani'}_${format(new Date(), "dd-MM-yyyy")}.pdf`);
+    doc.save(`Laporan_${companyName ? companyName.replace(/\s+/g, '_') : 'DanaTani'}_${format(new Date(), "dd-MM-yyyy")}.pdf`);
   };
 
   return (
@@ -107,7 +107,7 @@ export default function History() {
           <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-olive-700 opacity-70">Laporan</p>
           <h1 className="font-serif text-5xl font-light italic text-brown-900 leading-tight">Riwayat</h1>
         </div>
-        <button 
+        <button
           onClick={handleExportPDF}
           className="flex items-center gap-2 px-4 py-2 bg-warm-surface border border-warm-border rounded-full hover:bg-olive-50 transition-colors text-brown-900"
           title="Download PDF"
@@ -122,15 +122,15 @@ export default function History() {
         {/* Date Filter */}
         <div className="flex items-center space-x-3">
           <label className="text-sm font-medium text-brown-900">Tanggal:</label>
-          <input 
+          <input
             type="date"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
             className="rounded-full border border-warm-border bg-warm-surface px-4 py-2 text-sm text-brown-900 focus:outline-none focus:ring-1 focus:ring-brown-900"
           />
           {filterDate && (
-            <button 
-              onClick={() => setFilterDate("")} 
+            <button
+              onClick={() => setFilterDate("")}
               className="text-xs text-terracotta-600 hover:text-terracotta-700 font-medium"
             >
               Reset
@@ -145,7 +145,7 @@ export default function History() {
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
               className={cn(
-                "px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.1em] font-medium transition-all whitespace-nowrap border",
+                "px-4 py-2 rounded-full text-[10px] uppercase tracking-widest font-medium transition-all whitespace-nowrap border",
                 activeFilter === tab.id
                   ? "bg-brown-900 text-warm-bg border-brown-900 shadow-sm"
                   : "bg-warm-surface border-warm-border text-brown-500 hover:text-brown-900 hover:bg-olive-50"
@@ -157,7 +157,7 @@ export default function History() {
         </div>
       </div>
 
-      <Card className="p-0 overflow-hidden bg-transparent border-none md:bg-warm-surface md:border md:border-warm-border">
+      <Card className="p-0 overflow-hidden bg-transparent border-none rounded-none md:bg-warm-surface md:border md:border-warm-border">
         {(!transactions || transactions.length === 0) && (
           <div className="text-center py-12 text-brown-500 flex flex-col items-center">
             <HistoryIcon />
@@ -169,39 +169,38 @@ export default function History() {
           {transactions?.map((tx) => {
             const isIncome = tx.type === "income";
             const isCapital = tx.type === "capital";
-            
+
             return (
-              <div 
-                key={tx.id} 
+              <div
+                key={tx.id}
                 className="group bg-warm-surface border border-warm-border p-4 rounded-2xl md:rounded-none md:border-x-0 md:border-t-0 md:last:border-b-0 flex items-center justify-between transition-colors hover:bg-brown-50"
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-full bg-warm-surface flex items-center justify-center shrink-0">
-                      {isIncome ? <ArrowUpRight className="h-5 w-5 text-olive-600" /> : 
-                       isCapital ? <Wallet className="h-5 w-5 text-brown-500" /> :
-                       <ArrowDownRight className="h-5 w-5 text-terracotta-600" />}
+                    {isIncome ? <ArrowUpRight className="h-5 w-5 text-olive-600" /> :
+                      isCapital ? <Wallet className="h-5 w-5 text-brown-500" /> :
+                        <ArrowDownRight className="h-5 w-5 text-terracotta-600" />}
                   </div>
                   <div>
                     <p className="font-medium text-brown-900 capitalize">
                       {tx.category.replace('_', ' ')}
                     </p>
-                    <div className="flex space-x-2 items-center text-xs text-brown-500 mt-0.5">
-                      <span>{format(new Date(tx.date), "dd MMM, HH:mm", { locale: idLocale })}</span>
+                    <div className="flex flex-wrap space-x-2 items-center text-xs text-brown-500 mt-0.5">
+                      <span>{format(new Date(tx.date), "dd MMM yyyy", { locale: idLocale })}</span>
                       {tx.note && (
                         <>
-                          <span>•</span>
+                          {/* <span>•</span> */}
                           <span className="truncate max-w-[100px] sm:max-w-[150px]">{tx.note}</span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
-                    <p className={`font-mono font-medium ${
-                      isIncome || isCapital ? 'text-olive-700' : 'text-terracotta-700'
-                    }`}>
+                    <p className={`font-mono font-medium ${isIncome || isCapital ? 'text-olive-700' : 'text-terracotta-700'
+                      }`}>
                       {isIncome || isCapital ? '+' : '-'}{formatCurrency(tx.amount)}
                     </p>
                     {tx.quantity && tx.pricePerUnit && (
@@ -210,8 +209,8 @@ export default function History() {
                       </p>
                     )}
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={() => handleDelete(tx.id)}
                     className="p-2 text-brown-300 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-full transition-colors md:opacity-0 group-hover:opacity-100"
                     title="Hapus Transaksi"
@@ -224,7 +223,7 @@ export default function History() {
           })}
         </div>
       </Card>
-      
+
     </div>
   );
 }
