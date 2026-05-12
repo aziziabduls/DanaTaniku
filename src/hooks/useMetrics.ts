@@ -29,16 +29,9 @@ export function useMetrics() {
 
   const profitLoss = totalIncome - totalExpense;
 
-  let appFeeRate = 0.98;
-  if (totalIncome >= 15000000) {
-    const multiples = Math.floor(totalIncome / 15000000);
-    appFeeRate += (multiples * 0.01);
-  }
-
+  const appFeeRate = 0.8;
   let appFee = 0;
   if (profitLoss > 0) {
-    appFee = totalIncome * (appFeeRate / 100);
-  } else {
     appFee = profitLoss * (appFeeRate / 100);
   }
 
