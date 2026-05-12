@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-warm-bg: #f5f5f0;
+  --color-warm-surface: #ffffff;
+  --color-warm-border: #e5e5da;
+  
+  --color-olive-50: #f9f9f4;
+  --color-olive-100: #e5e5da;
+  --color-olive-500: #5A5A40;
+  --color-olive-600: #5A5A40;
+  --color-olive-700: #5A5A40;
+  --color-olive-800: #3a3a2a;
+  
+  --color-terracotta-50: #fdf6f5;
+  --color-terracotta-100: #fae8e5;
+  --color-terracotta-500: #A0522D;
+  --color-terracotta-600: #A0522D;
+  --color-terracotta-700: #A0522D;
+  
+  --color-brown-50: #f5f5f0;
+  --color-brown-100: #e5e5da;
+  --color-brown-300: #8b8b7a;
+  --color-brown-500: #8b8b7a;
+  --color-brown-900: #3a3a2a;
+  
+  --font-serif: "Georgia", "Cormorant Garamond", ui-serif, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Courier New", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-warm-bg text-brown-900 font-sans antialiased;
+  }
+}

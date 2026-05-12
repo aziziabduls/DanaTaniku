@@ -1,0 +1,6 @@
+{
+  "name": "DanaTani",
+  "description": "Aplikasi pencatatan keuangan harian untuk usaha jual beli kopra. Berjalan sepenuhnya di client menggunakan IndexedDB.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
